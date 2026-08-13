@@ -1,5 +1,8 @@
 name: Main workflow
-on: push
+on:
+  push:
+    branches:
+      - main
 jobs:
   Build-and-test-frontend:
     runs-on: ubuntu-latest
