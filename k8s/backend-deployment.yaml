@@ -19,3 +19,9 @@ spec:
           image: ghcr.io/christianbendix/simple-fortune-cookie-project/backend:latest
           ports:
             - containerPort: 9000
+          env:
+            - name: REDIS_DNS
+              valueFrom:
+                configMapKeyRef:
+                  name: fortune-config
+                  key: REDIS_DNS
