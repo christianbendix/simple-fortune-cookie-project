@@ -30,3 +30,10 @@ Changes will be overwritten by subsequent releases,
 In case of an unfortunate push,
     simply make a new release from the main repository,
     and squash the commits on this one.
+
+
+
+## Testing: 
+
+For testing we are using workstation-64 for student 64. 
+https://workstation-64.sdu.eficode.academy/?folder=/home/coder
