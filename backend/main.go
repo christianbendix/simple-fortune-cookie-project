@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -169,6 +170,14 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("not found"))
 }
 
+type heartbeat struct {
+}
+
+func (h *heartbeat) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	io.WriteString(w, "healthy")
+}
+
 func main() {
 	mux := http.NewServeMux()
 	fortuneH := &fortuneHandler{
@@ -176,6 +185,10 @@ func main() {
 	}
 	mux.Handle("/fortunes", fortuneH)
 	mux.Handle("/fortunes/", fortuneH)
+
+	// Heartbeat
+	health := &heartbeat{}
+	mux.Handle("/healthz", health)
 
 	err := http.ListenAndServe(":9000", mux)
 	fmt.Printf("%v", err)
