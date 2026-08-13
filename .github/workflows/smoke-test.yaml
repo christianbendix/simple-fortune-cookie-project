@@ -1,0 +1,26 @@
+name: Smoke test
+
+on: [push, pull_request]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t myapp:ci .
+
+      - name: Deploy test version
+        run: docker run -d --name myapp-ci -p 8080:80 myapp:ci
+
+      - name: Run smoke test
+        run: ./scripts/smoke-test.sh http://localhost:8080
+
+      - name: Logs on failure
+        if: failure()
+        run: docker logs myapp-ci
+
+      - name: Tear down
+        if: always()
+        run: docker rm -f myapp-ci
