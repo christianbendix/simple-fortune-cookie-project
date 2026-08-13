@@ -134,5 +134,5 @@ jobs:
 
         - name: Verify
           run: |
-            kubectl --kubeconfig kubeconfig rollout status deployment/frontend --timeout=60s
-            # og en linje magen til for backend
+            kubectl --kubeconfig kubeconfig rollout status deployment/frontend --timeout=120s
+            kubectl --kubeconfig kubeconfig rollout status deployment/backend --timeout=120s
