@@ -1,0 +1,55 @@
+name: Main workflow
+on: push
+jobs:
+  Build-and-test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone down repository
+        uses: actions/checkout@v4
+
+      - name: Set up go environment
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: ./frontend/go.mod
+
+      - name: Install go dependencies
+        working-directory: ./frontend
+        run: go mod download
+      
+      - name: Build application
+        working-directory: ./frontend
+        run: go build
+      
+      - name: Test application
+        working-directory: ./frontend
+        run: go test -v ./...
+
+      - name: Upload repo
+        uses: actions/upload-artifact@v4
+        with: 
+          name: code
+          path: .
+          include-hidden-files: true
+
+  Build-and-test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone down repository
+        uses: actions/checkout@v4
+
+      - name: Set up go environment
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: ./backend/go.mod
+
+      - name: Install go dependencies
+        working-directory: ./backend
+        run: go mod download
+      
+      - name: Build application
+        working-directory: ./backend
+        run: go build
+      
+      - name: Test application
+        working-directory: ./backend
+        run: go test -v ./...
