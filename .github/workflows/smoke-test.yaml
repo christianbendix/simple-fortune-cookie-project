@@ -9,13 +9,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build image
-        run: docker build -t myapp:ci .
+        run: docker build -t myapp:ci ./frontend
 
       - name: Deploy test version
-        run: docker run -d --name myapp-ci -p 8080:80 myapp:ci
+        run: docker run -d --name myapp-ci -p 8080:8080 myapp:ci
 
       - name: Run smoke test
-        run: ./scripts/smoke-test.sh http://localhost:8080
+        run: ./scripts/smoke-test.sh http://localhost:8080/healthz
 
       - name: Logs on failure
         if: failure()
