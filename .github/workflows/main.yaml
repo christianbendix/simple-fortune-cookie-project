@@ -57,9 +57,32 @@ jobs:
         working-directory: ./backend
         run: go test -v ./...
 
-  Build-docker-images:
+  Smoke-test:
     runs-on: ubuntu-latest
     needs: [Build-and-test-frontend, Build-and-test-backend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t myapp:ci ./frontend
+
+      - name: Deploy test version
+        run: docker run -d --name myapp-ci -p 8080:8080 myapp:ci
+
+      - name: Run smoke test
+        run: ./scripts/smoke-test.sh http://localhost:8080/healthz
+
+      - name: Logs on failure
+        if: failure()
+        run: docker logs myapp-ci
+
+      - name: Tear down
+        if: always()
+        run: docker rm -f myapp-ci
+
+  Build-docker-images:
+    runs-on: ubuntu-latest
+    needs: [Build-and-test-frontend, Build-and-test-backend, Smoke-test]
     permissions:               
       contents: read
       packages: write
