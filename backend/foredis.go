@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gomodule/redigo/redis"
 	"log"
-	"sync"
 	"time"
 	"os"
 )
@@ -12,7 +11,9 @@ import (
 var dbLink redis.Conn
 var usingRedis = false
 
-func init() {
+// connectRedis establishes the redis connection and loads existing fortunes.
+// Called from main() in a goroutine so it never blocks the HTTP server.
+func connectRedis() {
 	// Check if REDIS_DNS environment variable is set
 	if os.Getenv("REDIS_DNS") == "" {
 		fmt.Println("redis config not set")
@@ -20,7 +21,11 @@ func init() {
 	}
 	var err error
 	for i := 0; i < 5; i++ {
-		dbLink, err = redis.Dial("tcp", fmt.Sprintf("%s:6379", getEnv("REDIS_DNS", "localhost")))
+		dbLink, err = redis.Dial(
+			"tcp",
+			fmt.Sprintf("%s:6379", getEnv("REDIS_DNS", "localhost")),
+			redis.DialConnectTimeout(2*time.Second),
+		)
 		if err == nil {
 			usingRedis = true
 			break
@@ -30,7 +35,7 @@ func init() {
 	}
 
 	if !usingRedis {
-		log.Println("Failed to connect to redis after 5 attempts")
+		log.Println("Failed to connect to redis; serving in-memory fortunes")
 		return
 	}
 
@@ -40,17 +45,18 @@ func init() {
 		return
 	}
 
-	datastoreDefault = datastore{m: map[string]fortune{}, RWMutex: &sync.RWMutex{}}
 	fmt.Printf("*** loading redis fortunes:\n")
 	for _, key := range resKeys {
 		val, err := dbLink.Do("hget", "fortunes", key)
 		if err != nil {
 			fmt.Println("redis hget failed", err.Error())
-		} else {
-			idx := fmt.Sprintf("%s", key.([]byte))
-			msg := fmt.Sprintf("%s", val.([]byte))
-			datastoreDefault.m[idx] = fortune{ID: idx, Message: msg}
-			fmt.Printf("%s => %s\n", key, val)
+			continue
 		}
+		idx := fmt.Sprintf("%s", key.([]byte))
+		msg := fmt.Sprintf("%s", val.([]byte))
+		datastoreDefault.Lock()
+		datastoreDefault.m[idx] = fortune{ID: idx, Message: msg}
+		datastoreDefault.Unlock()
+		fmt.Printf("%s => %s\n", key, val)
 	}
 }

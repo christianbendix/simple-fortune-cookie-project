@@ -4,3 +4,4 @@ metadata:
   name: fortune-config
 data:
   BACKEND_DNS: backend
+  REDIS_DNS: database

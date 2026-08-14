@@ -19,3 +19,21 @@ spec:
           image: ghcr.io/christianbendix/simple-fortune-cookie-project/backend:latest
           ports:
             - containerPort: 9000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9000
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 9000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          env:
+            - name: REDIS_DNS
+              valueFrom:
+                configMapKeyRef:
+                  name: fortune-config
+                  key: REDIS_DNS

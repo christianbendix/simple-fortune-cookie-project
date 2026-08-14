@@ -14,6 +14,9 @@ spec:
       labels:
         app: frontend
     spec:
+      # Disable legacy Docker "service link" env vars (e.g. BACKEND_PORT=tcp://...:9000),
+      # which otherwise shadow the app's BACKEND_PORT and break the backend URL.
+      enableServiceLinks: false
       containers:
         - name: frontend
           image: ghcr.io/christianbendix/simple-fortune-cookie-project/frontend:latest
