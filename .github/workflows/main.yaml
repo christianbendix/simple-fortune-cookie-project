@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - 16-database-integration   # TEMP just for testing, to be deleted on clean pipeline run
 jobs:
   Build-and-test-frontend:
     runs-on: ubuntu-latest
