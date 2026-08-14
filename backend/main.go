@@ -179,6 +179,8 @@ func (h *heartbeat) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	go connectRedis() // non-blocking; server comes up immediately
+
 	mux := http.NewServeMux()
 	fortuneH := &fortuneHandler{
 		store: &datastoreDefault,

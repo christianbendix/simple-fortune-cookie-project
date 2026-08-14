@@ -39,8 +39,8 @@ func main() {
 	http.HandleFunc("/api/random", func(w http.ResponseWriter, r *http.Request) {
 		resp, err := myClient.Get(fmt.Sprintf("http://%s:%s/fortunes/random", BACKEND_DNS, BACKEND_PORT))
 		if err != nil {
-			log.Fatalln(err)
-			fmt.Fprint(w, err)
+			log.Println(err)
+			http.Error(w, "backend unavailable", http.StatusBadGateway)
 			return
 		}
 
@@ -54,8 +54,8 @@ func main() {
 	http.HandleFunc("/api/all", func(w http.ResponseWriter, r *http.Request) {
 		resp, err := myClient.Get(fmt.Sprintf("http://%s:%s/fortunes", BACKEND_DNS, BACKEND_PORT))
 		if err != nil {
-			log.Fatalln(err)
-			fmt.Fprint(w, err)
+			log.Println(err)
+			http.Error(w, "backend unavailable", http.StatusBadGateway)
 			return
 		}
 
@@ -65,8 +65,8 @@ func main() {
 		tmpl, err := template.ParseFiles("./templates/fortunes.html")
 
 		if err != nil {
-			log.Fatalln(err)
-			fmt.Fprint(w, err)
+			log.Println(err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
 
@@ -89,8 +89,8 @@ func main() {
 
 		_, err := myClient.Post(postUrl, "application/json", bytes.NewBuffer(jsonStr))
 		if err != nil {
-			log.Fatalln(err)
-			fmt.Fprint(w, err)
+			log.Println(err)
+			http.Error(w, "backend unavailable", http.StatusBadGateway)
 			return
 		}
 
