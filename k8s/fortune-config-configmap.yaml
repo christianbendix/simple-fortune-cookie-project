@@ -5,3 +5,4 @@ metadata:
 data:
   BACKEND_DNS: backend
   REDIS_DNS: database
+  REDIS_ARGS: --appendonly yes
