@@ -14,8 +14,21 @@ spec:
       labels:
         app: database
     spec:
+      volumes:
+        - name: database-pvc
+          persistentVolumeClaim:
+            claimName: database-pvc
       containers:
         - name: database
           image: redis:8.10.0
           ports:
             - containerPort: 6379
+          env:
+            - name: REDIS_ARGS
+              valueFrom:
+                configMapKeyRef:
+                  name: fortune-config
+                  key: REDIS_ARGS
+          volumeMounts:
+            - name: database-pvc
+              mountPath: /data
